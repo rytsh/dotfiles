@@ -20,7 +20,26 @@ xterm
 
 Window manager
 ```sh
-openbox hsetroot unclutter
+openbox obconf hsetroot unclutter
+```
+
+</details>
+
+<details><summary>Package managers</summary>
+
+## homebrew
+
+```sh
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+```
+
+## yay (AUR)
+
+```sh
+pacman -S --needed git base-devel
+git clone https://aur.archlinux.org/yay-bin.git
+cd yay-bin
+makepkg -si
 ```
 
 </details>
@@ -81,6 +100,11 @@ And personal file like
 
 Or use with `git config -l --file=.git/personal` and set new things.
 
+Don't forget to apply this one, if not exist it will use glocal signingkey.
+```sh
+git config --file .git/personal user.signingkey __KEYID__
+```
+
 </details>
 
 <details><summary>Network</summary>
@@ -99,9 +123,11 @@ cat /etc/udev/rules.d/10-network.rules
 
 Find mac address with `ip link` command or manual way `cat /sys/class/net/enp0s3/address`.
 
+Write correct mac address, check virtualbox's network settings.
+
 ```
-SUBSYSTEM=="net", ACTION=="add", ATTR{address}=="08:00:27:a9:fd:20" NAME="nethost"
-SUBSYSTEM=="net", ACTION=="add", ATTR{address}=="08:00:27:1a:c4:cd" NAME="netnat"
+SUBSYSTEM=="net", ACTION=="add", ATTR{address}=="08:00:27:a9:fd:20" NAME="netnat"
+SUBSYSTEM=="net", ACTION=="add", ATTR{address}=="08:00:27:1a:c4:cd" NAME="nethost"
 ```
 
 ## Network Settings
@@ -133,5 +159,11 @@ DHCP=yes
 ```
 
 Check with `networkctl list` command.
+
+If network changed to get new changes, run manually this command.
+
+```
+sudo dhclient netnat
+```
 
 </details>

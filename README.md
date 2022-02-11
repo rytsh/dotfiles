@@ -2,6 +2,29 @@
 
 Based on __Arch Linux__
 
+![minimal](assets/minimal.png)
+
+<details><summary>Packages</summary>
+
+## Install packages
+
+Font
+```
+ttf-anonymous-pro
+```
+
+Terminal
+```sh
+xterm
+```
+
+Window manager
+```sh
+openbox hsetroot unclutter
+```
+
+</details>
+
 <details><summary>Git</summary>
 
 ## GPG sign

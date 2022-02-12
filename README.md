@@ -4,23 +4,167 @@ Based on __Arch Linux__
 
 ![minimal](assets/minimal.png)
 
+<details><summary>Install</summary>
+
+## Arch Linux
+
+https://wiki.archlinux.org/title/Installation_guide
+
+Open system with iso file.
+
+### Partition
+
+List all partitions
+```sh
+fdisk -l
+```
+Create new partition
+```sh
+cfdisk /dev/sda
+# Select gpt
+# Make 2 partition
+## Partition 1 EFI 300M
+## Partition 2 Linux -
+## Write and quit
+```
+
+Format partitions
+```sh
+mkfs.fat -F 32 /dev/sda1
+mkfs.ext4 /dev/sda2
+```
+
+Mount partitions
+```sh
+mount /dev/sda2 /mnt
+mkdir /mnt/boot
+mount /dev/sda1 /mnt/boot
+```
+
+#### Installation
+
+Edit `/etc/pacman.d/mirrorlist` and move your country to the top
+
+Install to new system
+```sh
+pacstrap /mnt base base-devel linux linux-firmware vim dhclient amd-ucode
+# amd-ucode intel-ucode
+```
+
+Generate fstab
+```sh
+genfstab -U /mnt >> /mnt/etc/fstab
+```
+
+Chroot and some configuration
+```sh
+arch-chroot /mnt
+```
+
+```sh
+ln -sf /usr/share/zoneinfo/Europe/Amsterdam /etc/localtime
+hwclock --systohc
+echo "tr_TR.UTF-8 UTF-8" >> /etc/locale.gen
+echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen
+locale-gen
+echo "LANG=tr_TR.UTF-8" >> /etc/locale.conf
+echo "LC_MESSAGES=en_US.UTF-8" >> /etc/locale.conf
+echo "KEYMAP=uk" >> /etc/vconsole.conf
+# set hostname
+echo "archi" > /etc/hostname
+# set hosts file
+echo 127.0.0.1 localhost >> /etc/hosts
+# root password
+passwd
+```
+
+Add systemd-boot
+
+```sh
+bootctl install
+```
+
+Add entry to bootloader
+```sh
+cat << EOF > /boot/loader/entries/arch.conf
+title Arch Linux
+linux /vmlinuz-linux
+initrd /amd-ucode.img
+initrd /initramfs-linux.img
+options root=/dev/sda2
+EOF
+```
+
+Exit in chroot and umount
+```sh
+umount -R /mnt
+```
+
+Reboot
+```sh
+reboot
+```
+
+</details>
+
+<details><summary>User</summary>
+
+```sh
+pacman -S sudo
+```
+
+Give permissions to sudo group
+```sh
+echo "%sudo ALL=(ALL) ALL" >> /etc/sudoers.d/10-sudo
+```
+
+Create sudo group in system
+```sh
+groupadd -r sudo
+```
+
+Create users group
+```sh
+groupadd users
+```
+
+Create user
+```sh
+useradd -m -g users -G sudo -s /bin/bash ray
+```
+
+Give password to user
+```sh
+passwd ray
+```
+
+Exit terminal and login as user
+
+</details>
+
 <details><summary>Packages</summary>
 
 ## Install packages
 
-Font
-```
-ttf-anonymous-pro
+Font, Terminal, Window manager
+```sh
+sudo pacman -S ttf-anonymous-pro xterm openbox obconf hsetroot unclutter git openssh xorg-xinit xorg-server bash-completion
 ```
 
-Terminal
+</details>
+
+<details><summary>Dotfiles</summary>
+
+## Clone dotfiles
+
 ```sh
-xterm
+git clone https://github.com/rytsh/dotfiles.git
 ```
 
-Window manager
+copy dotfiles to home directory
+
 ```sh
-openbox obconf hsetroot unclutter
+cp -a dotfiles/home/. ~/
 ```
 
 </details>
@@ -80,6 +224,12 @@ Enable to sign always
 git config --global commit.gpgsign true
 ```
 
+Set editor to vim
+
+```sh
+echo export GIT_EDITOR=vim >> ~/.bashrc
+```
+
 ## Specific folder use different key
 
 Add this config in the `~/.gitconfig`
@@ -95,7 +245,6 @@ And personal file like
 [user]
 	email = eates23@gmail.com
 	name = Eray Ates
-	user = rytsh
 ```
 
 Or use with `git config -l --file=.git/personal` and set new things.
@@ -162,7 +311,7 @@ Check with `networkctl list` command.
 
 If network changed to get new changes, run manually this command.
 
-```
+```sh
 sudo dhclient netnat
 ```
 
